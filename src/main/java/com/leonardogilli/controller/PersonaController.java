@@ -3,7 +3,10 @@ package com.leonardogilli.controller;
 import com.leonardogilli.dto.Mensaje;
 import com.leonardogilli.dto.PersonaDto;
 import com.leonardogilli.entity.Persona;
+import com.leonardogilli.security.entity.User;
+import com.leonardogilli.security.service.UserService;
 import com.leonardogilli.service.PersonaService;
+import java.security.Principal;
 import java.util.List;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +30,9 @@ public class PersonaController {
     @Autowired
     PersonaService personaService;
     
+    @Autowired
+    UserService userService;
+    
     @GetMapping("/list")
     public ResponseEntity<List<Persona>> list() {
         List<Persona> list = personaService.list();
@@ -34,9 +40,9 @@ public class PersonaController {
     }
     
     @RequestMapping("/create")
-    public ResponseEntity<?> create(@Valid @RequestBody PersonaDto personaDto) {
+    public ResponseEntity<?> create(@Valid @RequestBody PersonaDto personaDto, Principal principal) {        
         if (StringUtils.isBlank(personaDto.getFullName()) || StringUtils.isBlank(personaDto.getAboutMe()))
-            return new ResponseEntity(new Mensaje("Mandatory fields(FullName, AboutMe)"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Mensaje("Fields (name, about) should not be empty"), HttpStatus.BAD_REQUEST);
         
         Persona persona = new Persona(
                 personaDto.getFullName(),
@@ -48,8 +54,10 @@ public class PersonaController {
                 personaDto.getBackImg(), 
                 personaDto.getProfileImg());
         
-        personaService.save(persona);
+        User user = userService.getByUsername(principal.getName()).get();
+        persona.setUser(user);
         
+        personaService.save(persona);
         return new ResponseEntity(new Mensaje("Persona created"), HttpStatus.CREATED);
     }
     
@@ -62,11 +70,14 @@ public class PersonaController {
     }
     
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody PersonaDto personaDto) {
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody PersonaDto personaDto, Principal principal) {
+        if (!personaService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!personaService.existsById(id))
             return new ResponseEntity(new Mensaje("Not found"), HttpStatus.NOT_FOUND);
         if (StringUtils.isBlank(personaDto.getFullName()) || StringUtils.isBlank(personaDto.getAboutMe()))
-            return new ResponseEntity(new Mensaje("Mandatory fields(FullName, AboutMe)"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Mensaje("Fields (FullName, AboutMe) can not be empty"), HttpStatus.BAD_REQUEST);
         
         Persona persona = personaService.get(id).get();
         persona.setFullName(personaDto.getFullName());
@@ -83,7 +94,10 @@ public class PersonaController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+    public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal) {
+        if (!personaService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!personaService.existsById(id))
             return new ResponseEntity(new Mensaje("Persona not found"), HttpStatus.NOT_FOUND);
         personaService.delete(id);

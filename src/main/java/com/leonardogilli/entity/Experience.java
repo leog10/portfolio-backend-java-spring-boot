@@ -1,5 +1,7 @@
 package com.leonardogilli.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.leonardogilli.security.entity.User;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,8 +29,9 @@ public class Experience {
     private String location;
     
     @ManyToOne
-    @JoinColumn(name = "persona_id", nullable = false)
-    private Persona persona;
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
 
     public Experience(String position, String company, String img, String mode, String startTime, String endTime, String timeAtPosition, String location) {
         this.position = position;

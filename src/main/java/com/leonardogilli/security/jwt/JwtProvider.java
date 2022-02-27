@@ -1,7 +1,7 @@
 package com.leonardogilli.security.jwt;
 
 import com.leonardogilli.security.dto.JwtDto;
-import com.leonardogilli.security.entity.Principal;
+import com.leonardogilli.security.entity.UserPrincipal;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -35,7 +35,7 @@ public class JwtProvider {
     private int expiration;
     
     public String generateToken(Authentication authentication) {
-        Principal principal = (Principal) authentication.getPrincipal();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         List<String> roles = principal
                 .getAuthorities()
                 .stream()

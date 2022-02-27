@@ -1,6 +1,6 @@
 package com.leonardogilli.security.service;
 
-import com.leonardogilli.security.entity.Principal;
+import com.leonardogilli.security.entity.UserPrincipal;
 import com.leonardogilli.security.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +17,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userService.getByUsername(username).get();
-        return Principal.build(user);
+        return UserPrincipal.build(user);
     }
 }

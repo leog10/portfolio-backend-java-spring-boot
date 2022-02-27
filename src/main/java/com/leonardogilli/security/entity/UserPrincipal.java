@@ -9,20 +9,20 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @AllArgsConstructor
-public class Principal implements UserDetails{
+public class UserPrincipal implements UserDetails{
     private String name;
     private String username;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public static Principal build(User user) {
+    public static UserPrincipal build(User user) {
         List<GrantedAuthority> authorities =
                 user.getRoles()
                 .stream()
                 .map(rol -> new SimpleGrantedAuthority(rol.getRolName()
                 .name())).collect(Collectors.toList());
-        return new Principal(
+        return new UserPrincipal(
                 user.getName(), 
                 user.getUsername(), 
                 user.getEmail(), 

@@ -1,5 +1,7 @@
 package com.leonardogilli.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.leonardogilli.security.entity.User;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,8 +35,9 @@ public class Skill {
     private int animationDelay;
     
     @ManyToOne
-    @JoinColumn(name = "persona_id", nullable = false)
-    private Persona persona;
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
 
     public Skill(String title, int currentNumber, int maxNumber, int radius, boolean semicircle, boolean rounded, boolean responsive, boolean clockwise, int stroke, String color, String background, int duration, String animation, int animationDelay) {
         this.title = title;

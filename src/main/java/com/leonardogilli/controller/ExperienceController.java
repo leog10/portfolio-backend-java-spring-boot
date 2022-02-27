@@ -3,9 +3,10 @@ package com.leonardogilli.controller;
 import com.leonardogilli.dto.ExperienceDto;
 import com.leonardogilli.dto.Mensaje;
 import com.leonardogilli.entity.Experience;
-import com.leonardogilli.entity.Persona;
+import com.leonardogilli.security.entity.User;
+import com.leonardogilli.security.service.UserService;
 import com.leonardogilli.service.ExperienceService;
-import com.leonardogilli.service.PersonaService;
+import java.security.Principal;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class ExperienceController {
     ExperienceService experienceService;
     
     @Autowired
-    PersonaService personaService;
+    UserService userService;
     
     @GetMapping("/list")
     public ResponseEntity<List<Experience>> list() {
@@ -46,7 +47,7 @@ public class ExperienceController {
     }
     
     @RequestMapping("/create")
-    public ResponseEntity<?> create(@RequestBody ExperienceDto experienceDto) {
+    public ResponseEntity<?> create(@RequestBody ExperienceDto experienceDto, Principal principal) {
         if(StringUtils.isBlank(experienceDto.getPosition()))
             return new ResponseEntity(new Mensaje("position can not be empty"), HttpStatus.BAD_REQUEST);
         if(StringUtils.isBlank(experienceDto.getCompany()))
@@ -64,16 +65,18 @@ public class ExperienceController {
                 experienceDto.getTimeAtPosition(), 
                 experienceDto.getLocation());
         
-        // MODIFICAR CON Principal principal get()!!!!!!!!!/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
-        Persona persona = personaService.get(1).get();
-        experience.setPersona(persona);
+        User user = userService.getByUsername(principal.getName()).get();
+        experience.setUser(user);
         
         experienceService.save(experience);
         return new ResponseEntity(new Mensaje("Experience created"), HttpStatus.CREATED);
     }
     
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody ExperienceDto experienceDto) {
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody ExperienceDto experienceDto, Principal principal) {
+        if (!experienceService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!experienceService.existsById(id))
             return new ResponseEntity(new Mensaje("Not found"), HttpStatus.NOT_FOUND);
         if(StringUtils.isBlank(experienceDto.getPosition()))
@@ -98,7 +101,10 @@ public class ExperienceController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+    public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal) {
+        if (!experienceService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!experienceService.existsById(id))
             return new ResponseEntity(new Mensaje("Experience not found"), HttpStatus.NOT_FOUND);
         experienceService.delete(id);

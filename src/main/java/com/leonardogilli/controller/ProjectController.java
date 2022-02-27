@@ -2,10 +2,11 @@ package com.leonardogilli.controller;
 
 import com.leonardogilli.dto.Mensaje;
 import com.leonardogilli.dto.ProjectDto;
-import com.leonardogilli.entity.Persona;
 import com.leonardogilli.entity.Project;
-import com.leonardogilli.service.PersonaService;
+import com.leonardogilli.security.entity.User;
+import com.leonardogilli.security.service.UserService;
 import com.leonardogilli.service.ProjectService;
+import java.security.Principal;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class ProjectController {
     ProjectService projectService;
     
     @Autowired
-    PersonaService personaService;
+    UserService userService;
     
     @GetMapping("/list")
     public ResponseEntity<List<Project>> list() {
@@ -46,7 +47,7 @@ public class ProjectController {
     }
     
     @RequestMapping("/create")
-    public ResponseEntity<?> create(@RequestBody ProjectDto projectDto) {
+    public ResponseEntity<?> create(@RequestBody ProjectDto projectDto, Principal principal) {
         if(StringUtils.isBlank(projectDto.getName()))
             return new ResponseEntity(new Mensaje("name can not be empty"), HttpStatus.BAD_REQUEST);
         if(StringUtils.isBlank(projectDto.getDescription()))
@@ -59,16 +60,18 @@ public class ProjectController {
                 projectDto.getStartTime(), 
                 projectDto.getEndTime());
         
-        // MODIFICAR CON Principal principal get()!!!!!!!!!/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
-        Persona persona = personaService.get(1).get();
-        project.setPersona(persona);
+        User user = userService.getByUsername(principal.getName()).get();
+        project.setUser(user);
         
         projectService.save(project);
         return new ResponseEntity(new Mensaje("Project created"), HttpStatus.CREATED);
     }
     
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody ProjectDto projectDto) {
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody ProjectDto projectDto, Principal principal) {
+        if (!projectService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!projectService.existsById(id))
             return new ResponseEntity(new Mensaje("Project not found"), HttpStatus.NOT_FOUND);
         if(StringUtils.isBlank(projectDto.getName()))
@@ -88,7 +91,10 @@ public class ProjectController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+    public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal) {
+        if (!projectService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!projectService.existsById(id))
             return new ResponseEntity(new Mensaje("Project not found"), HttpStatus.NOT_FOUND);
         projectService.delete(id);

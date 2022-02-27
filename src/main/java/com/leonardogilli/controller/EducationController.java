@@ -3,9 +3,10 @@ package com.leonardogilli.controller;
 import com.leonardogilli.dto.EducationDto;
 import com.leonardogilli.dto.Mensaje;
 import com.leonardogilli.entity.Education;
-import com.leonardogilli.entity.Persona;
+import com.leonardogilli.security.entity.User;
+import com.leonardogilli.security.service.UserService;
 import com.leonardogilli.service.EducationService;
-import com.leonardogilli.service.PersonaService;
+import java.security.Principal;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class EducationController {
     EducationService educationService;
     
     @Autowired
-    PersonaService personaService;
+    UserService userService;
     
     @GetMapping("/list")
     public ResponseEntity<List<Education>> list() {
@@ -46,7 +47,7 @@ public class EducationController {
     }
 
     @RequestMapping("/create")
-    public ResponseEntity<?> create(@RequestBody EducationDto educationDto) {
+    public ResponseEntity<?> create(@RequestBody EducationDto educationDto, Principal principal) {
         if(StringUtils.isBlank(educationDto.getSchool()))
             return new ResponseEntity(new Mensaje("school can not be empty"), HttpStatus.BAD_REQUEST);
         if(StringUtils.isBlank(educationDto.getTitle()))
@@ -64,20 +65,18 @@ public class EducationController {
                 educationDto.getLocation()
         );
         
-        // MODIFICAR CON Principal principal get()!!!!!!!!!/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
-        if (personaService.existsById(1)) {
-            Persona persona = personaService.get(1).get();
-            education.setPersona(persona);            
-        } else {
-            return new ResponseEntity(new Mensaje("a Persona must exist before creating Education"), HttpStatus.BAD_REQUEST);
-        }            
+        User user = userService.getByUsername(principal.getName()).get();
+        education.setUser(user);
 
         educationService.save(education);
         return new ResponseEntity(new Mensaje("Education created"), HttpStatus.CREATED);
     }
     
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody EducationDto educationDto) {
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody EducationDto educationDto, Principal principal) {
+        if (!educationService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!educationService.existsById(id))
             return new ResponseEntity(new Mensaje("Education not found"), HttpStatus.NOT_FOUND);
         if(StringUtils.isBlank(educationDto.getSchool()))
@@ -101,7 +100,10 @@ public class EducationController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+    public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal) {
+        if (!educationService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!educationService.existsById(id))
             return new ResponseEntity(new Mensaje("Education not found"), HttpStatus.NOT_FOUND);
         educationService.delete(id);

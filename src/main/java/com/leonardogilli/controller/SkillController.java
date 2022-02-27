@@ -2,10 +2,11 @@ package com.leonardogilli.controller;
 
 import com.leonardogilli.dto.Mensaje;
 import com.leonardogilli.dto.SkillDto;
-import com.leonardogilli.entity.Persona;
 import com.leonardogilli.entity.Skill;
-import com.leonardogilli.service.PersonaService;
+import com.leonardogilli.security.entity.User;
+import com.leonardogilli.security.service.UserService;
 import com.leonardogilli.service.SkillService;
+import java.security.Principal;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class SkillController {
     SkillService skillService;
     
     @Autowired
-    PersonaService personaService;
+    UserService userService;
     
     @GetMapping("/list")
     public ResponseEntity<List<Skill>> list() {
@@ -46,7 +47,7 @@ public class SkillController {
     }
     
     @RequestMapping("/create")
-    public ResponseEntity<?> create(@RequestBody SkillDto skillDto) {
+    public ResponseEntity<?> create(@RequestBody SkillDto skillDto, Principal principal) {
         if(StringUtils.isBlank(skillDto.getTitle()))
             return new ResponseEntity(new Mensaje("title can not be empty"), HttpStatus.BAD_REQUEST);
         if(skillDto.getCurrentNumber() < 0 || skillDto.getCurrentNumber() > 110)
@@ -86,16 +87,18 @@ public class SkillController {
                 skillDto.getAnimation(), 
                 skillDto.getAnimationDelay());
         
-        // MODIFICAR CON Principal principal get()!!!!!!!!!/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
-        Persona persona = personaService.get(1).get();
-        skill.setPersona(persona);
+        User user = userService.getByUsername(principal.getName()).get();
+        skill.setUser(user);
         
         skillService.save(skill);
         return new ResponseEntity(new Mensaje("Skill created"), HttpStatus.CREATED);
     }
     
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody SkillDto skillDto) {
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody SkillDto skillDto, Principal principal) {
+        if (!skillService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!skillService.existsById(id))
             return new ResponseEntity(new Mensaje("Skill not found"), HttpStatus.NOT_FOUND);
         if(StringUtils.isBlank(skillDto.getTitle()))
@@ -141,7 +144,10 @@ public class SkillController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+    public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal) {
+        if (!skillService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
         if (!skillService.existsById(id))
             return new ResponseEntity(new Mensaje("Skill not found"), HttpStatus.NOT_FOUND);
         skillService.delete(id);

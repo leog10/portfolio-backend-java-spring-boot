@@ -1,7 +1,10 @@
 package com.leonardogilli.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.leonardogilli.security.entity.User;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,10 +29,10 @@ public class Education {
     private String endTime;
     private String location;
     
-    @ManyToOne
-    @JoinColumn(name = "persona_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private Persona persona;
+    private User user;
 
     public Education(String school, String title, String img, String career, String startTime, String endTime, String location) {
         this.school = school;
