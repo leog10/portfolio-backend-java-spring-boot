@@ -34,4 +34,8 @@ public class ExperienceService {
     public boolean existsById(int id) {
         return experienceRepository.existsById(id);
     }
+    
+    public List<Experience> listByUserId(int id) {
+        return experienceRepository.findByUserId(id);
+    }
 }

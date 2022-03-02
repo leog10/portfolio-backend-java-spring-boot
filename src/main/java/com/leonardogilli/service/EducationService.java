@@ -34,4 +34,8 @@ public class EducationService {
     public boolean existsById(int id) {
         return educationRepository.existsById(id);
     }
+    
+    public List<Education> listByUserId(int id) {
+        return educationRepository.findByUserId(id);
+    }
 }

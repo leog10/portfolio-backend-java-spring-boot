@@ -2,6 +2,7 @@ package com.leonardogilli.security.service;
 
 import com.leonardogilli.security.entity.User;
 import com.leonardogilli.security.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,10 @@ public class UserService {
     
     @Autowired
     UserRepository userRepository;
+    
+    public List<User> list() {
+        return userRepository.findAll();
+    }
     
     public Optional<User> getByUsername(String username) {
         return userRepository.findByUsername(username);

@@ -38,12 +38,21 @@ public class ProjectController {
         return new ResponseEntity(list, HttpStatus.OK);
     }
     
-    @GetMapping("/details/{id}")
+    @GetMapping("/details/id/{id}")
     public ResponseEntity<Project> getById(@PathVariable("id") int id) {
         if(!projectService.existsById(id))
             return new ResponseEntity(new Mensaje("Project not found"), HttpStatus.NOT_FOUND);
         Project project = projectService.get(id).get();
         return new ResponseEntity(project, HttpStatus.OK);
+    }
+    
+    @GetMapping("/details/{username}")
+    public ResponseEntity<List<Project>> getByUsername(@PathVariable("username") String username) {
+        if (!userService.existsByUsername(username))
+            return new ResponseEntity(new Mensaje("User not found"), HttpStatus.NOT_FOUND);
+        User user = userService.getByUsername(username).get();        
+        List<Project> list = projectService.listByUserId(user.getId());
+        return new ResponseEntity(list, HttpStatus.OK);
     }
     
     @RequestMapping("/create")

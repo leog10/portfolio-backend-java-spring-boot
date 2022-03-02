@@ -13,11 +13,11 @@ public class SkillDto {
     @NotBlank
     @Min(0)
     @Max(110)
-    private int currentNumber;
+    private int current;
     @NotBlank
     @Min(100)
     @Max(100)
-    private int maxNumber;
+    private int max;
     @NotBlank
     @Min(70)
     @Max(150)
@@ -25,9 +25,7 @@ public class SkillDto {
     @NotBlank
     private boolean semicircle;
     @NotBlank
-    private boolean rounded;
-    @NotBlank
-    private boolean responsive;
+    private boolean rounded;    
     @NotBlank
     private boolean clockwise;
     @NotBlank

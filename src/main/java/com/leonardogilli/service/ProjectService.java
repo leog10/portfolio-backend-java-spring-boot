@@ -34,4 +34,8 @@ public class ProjectService {
     public boolean existsById(int id) {
         return projectRepository.existsById(id);
     }
+    
+    public List<Project> listByUserId(int id) {
+        return projectRepository.findByUserId(id);
+    }
 }

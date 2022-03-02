@@ -38,12 +38,21 @@ public class EducationController {
         return new ResponseEntity(list, HttpStatus.OK);
     }
     
-    @GetMapping("/details/{id}")
+    @GetMapping("/details/id/{id}")
     public ResponseEntity<Education> getById(@PathVariable("id") int id) {
         if(!educationService.existsById(id))
             return new ResponseEntity(new Mensaje("Education not found"), HttpStatus.NOT_FOUND);
         Education education = educationService.get(id).get();
         return new ResponseEntity(education, HttpStatus.OK);
+    }
+    
+    @GetMapping("/details/{username}")
+    public ResponseEntity<List<Education>> getByUsername(@PathVariable("username") String username) {
+        if (!userService.existsByUsername(username))
+            return new ResponseEntity(new Mensaje("User not found"), HttpStatus.NOT_FOUND);
+        User user = userService.getByUsername(username).get();
+        List<Education> list = educationService.listByUserId(user.getId());
+        return new ResponseEntity(list, HttpStatus.OK);
     }
 
     @RequestMapping("/create")

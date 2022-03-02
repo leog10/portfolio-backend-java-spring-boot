@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @AllArgsConstructor
 public class UserPrincipal implements UserDetails{
-    private String name;
     private String username;
     private String email;
     private String password;
@@ -23,7 +22,6 @@ public class UserPrincipal implements UserDetails{
                 .map(rol -> new SimpleGrantedAuthority(rol.getRolName()
                 .name())).collect(Collectors.toList());
         return new UserPrincipal(
-                user.getName(), 
                 user.getUsername(), 
                 user.getEmail(), 
                 user.getPassword(), 
@@ -33,10 +31,6 @@ public class UserPrincipal implements UserDetails{
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
-    }
-    
-    public String getName() {
-        return name;        
     }
     
     public String getEmail() {

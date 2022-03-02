@@ -10,8 +10,6 @@ import lombok.Setter;
 @Getter @Setter
 public class NewUser {
     @NotBlank
-    private String name;
-    @NotBlank
     private String username;
     @Email
     private String email;

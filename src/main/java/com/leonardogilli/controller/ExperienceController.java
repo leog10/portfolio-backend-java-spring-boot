@@ -38,12 +38,21 @@ public class ExperienceController {
         return new ResponseEntity(list, HttpStatus.OK);
     }
 
-     @GetMapping("/details/{id}")
+     @GetMapping("/details/id/{id}")
     public ResponseEntity<Experience> getById(@PathVariable("id") int id) {
         if (!experienceService.existsById(id))
             return new ResponseEntity(new Mensaje("Experience not found"), HttpStatus.NOT_FOUND);
         Experience experience = experienceService.get(id).get();
         return new ResponseEntity(experience, HttpStatus.OK);
+    }
+    
+    @GetMapping("/details/{username}")
+    public ResponseEntity<List<Experience>> getByUsername(@PathVariable("username") String username) {
+        if (!userService.existsByUsername(username))
+            return new ResponseEntity(new Mensaje("User not found"), HttpStatus.NOT_FOUND);
+        User user = userService.getByUsername(username).get();        
+        List<Experience> list = experienceService.listByUserId(user.getId());
+        return new ResponseEntity(list, HttpStatus.OK);
     }
     
     @RequestMapping("/create")

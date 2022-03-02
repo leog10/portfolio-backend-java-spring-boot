@@ -38,7 +38,7 @@ public class SkillController {
         return new ResponseEntity(list, HttpStatus.OK);
     }
 
-    @GetMapping("/details/{id}")
+    @GetMapping("/details/id/{id}")
     public ResponseEntity<Skill> getById(@PathVariable("id") int id) {
         if(!skillService.existsById(id))
             return new ResponseEntity(new Mensaje("Skill not found"), HttpStatus.NOT_FOUND);
@@ -46,13 +46,22 @@ public class SkillController {
         return new ResponseEntity(skill, HttpStatus.OK);
     }
     
+    @GetMapping("/details/{username}")
+    public ResponseEntity<List<Skill>> getByUsername(@PathVariable("username") String username) {
+        if (!userService.existsByUsername(username))
+            return new ResponseEntity(new Mensaje("User not found"), HttpStatus.NOT_FOUND);
+        User user = userService.getByUsername(username).get();        
+        List<Skill> list = skillService.listByUserId(user.getId());
+        return new ResponseEntity(list, HttpStatus.OK);
+    }
+    
     @RequestMapping("/create")
     public ResponseEntity<?> create(@RequestBody SkillDto skillDto, Principal principal) {
         if(StringUtils.isBlank(skillDto.getTitle()))
             return new ResponseEntity(new Mensaje("title can not be empty"), HttpStatus.BAD_REQUEST);
-        if(skillDto.getCurrentNumber() < 0 || skillDto.getCurrentNumber() > 110)
+        if(skillDto.getCurrent() < 0 || skillDto.getCurrent() > 110)
             return new ResponseEntity(new Mensaje("current must be between 0 and 100"), HttpStatus.BAD_REQUEST);
-        if(skillDto.getMaxNumber() != 100)
+        if(skillDto.getMax() != 100)
             return new ResponseEntity(new Mensaje("max must be 100"), HttpStatus.BAD_REQUEST);
         if(skillDto.getRadius() < 70 || skillDto.getRadius() > 150)
             return new ResponseEntity(new Mensaje("radius must be between 70 and 150"), HttpStatus.BAD_REQUEST);
@@ -73,12 +82,11 @@ public class SkillController {
         
         Skill skill = new Skill(
                 skillDto.getTitle(), 
-                skillDto.getCurrentNumber(), 
-                skillDto.getMaxNumber(), 
+                skillDto.getCurrent(), 
+                skillDto.getMax(), 
                 skillDto.getRadius(), 
                 skillDto.isSemicircle(), 
                 skillDto.isRounded(), 
-                skillDto.isResponsive(), 
                 skillDto.isClockwise(), 
                 skillDto.getStroke(), 
                 skillDto.getColor(), 
@@ -89,6 +97,9 @@ public class SkillController {
         
         User user = userService.getByUsername(principal.getName()).get();
         skill.setUser(user);
+        
+        if (skillService.listByUserId(user.getId()).size() == 6)
+            return new ResponseEntity(new Mensaje("Max number of Skills reached (6)"), HttpStatus.BAD_REQUEST);
         
         skillService.save(skill);
         return new ResponseEntity(new Mensaje("Skill created"), HttpStatus.CREATED);
@@ -103,9 +114,9 @@ public class SkillController {
             return new ResponseEntity(new Mensaje("Skill not found"), HttpStatus.NOT_FOUND);
         if(StringUtils.isBlank(skillDto.getTitle()))
             return new ResponseEntity(new Mensaje("title can not be empty"), HttpStatus.BAD_REQUEST);
-        if(skillDto.getCurrentNumber() < 0 || skillDto.getCurrentNumber() > 110)
+        if(skillDto.getCurrent() < 0 || skillDto.getCurrent() > 110)
             return new ResponseEntity(new Mensaje("current must be between 0 and 100"), HttpStatus.BAD_REQUEST);
-        if(skillDto.getMaxNumber() != 100)
+        if(skillDto.getMax() != 100)
             return new ResponseEntity(new Mensaje("max must be 100"), HttpStatus.BAD_REQUEST);
         if(skillDto.getRadius() < 70 || skillDto.getRadius() > 150)
             return new ResponseEntity(new Mensaje("radius must be between 70 and 150"), HttpStatus.BAD_REQUEST);
@@ -125,12 +136,11 @@ public class SkillController {
             return new ResponseEntity(new Mensaje("animation delay must be between 0 and 5000"), HttpStatus.BAD_REQUEST);
         
         Skill skill = skillService.get(id).get();
-        skill.setCurrentNumber(skillDto.getCurrentNumber());
-        skill.setMaxNumber(skillDto.getMaxNumber());
+        skill.setTitle(skillDto.getTitle());
+        skill.setCurrent(skillDto.getCurrent());
         skill.setRadius(skillDto.getRadius());
         skill.setSemicircle(skillDto.isSemicircle());
         skill.setRounded(skillDto.isRounded());
-        skill.setResponsive(skillDto.isResponsive());
         skill.setClockwise(skillDto.isClockwise());
         skill.setStroke(skillDto.getStroke());
         skill.setColor(skillDto.getColor());

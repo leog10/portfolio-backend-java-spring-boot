@@ -34,4 +34,8 @@ public class SkillService {
     public boolean existsById(int id) {
         return skillRepository.existsById(id);
     }
+    
+    public List<Skill> listByUserId(int id) {
+        return skillRepository.findByUserId(id);
+    }
 }

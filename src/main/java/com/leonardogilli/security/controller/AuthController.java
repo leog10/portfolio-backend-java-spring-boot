@@ -12,11 +12,13 @@ import com.leonardogilli.security.service.RolService;
 import com.leonardogilli.security.service.UserService;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +52,13 @@ public class AuthController {
     @Autowired
     JwtProvider jwtProvider;
     
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/list")
+    public ResponseEntity<List<User>> list() {
+        List<User> list = userService.list();
+        return new ResponseEntity(list, HttpStatus.OK);
+    }    
+    
     @PostMapping("/new")
     public ResponseEntity<?> newUser(@Valid @RequestBody NewUser newUser, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
@@ -58,14 +68,13 @@ public class AuthController {
         if (userService.existsByEmail(newUser.getEmail()))
             return new ResponseEntity(new Mensaje("this email is already taken"), HttpStatus.BAD_REQUEST);
         User user = new User(
-                newUser.getName(), 
                 newUser.getUsername(), 
                 newUser.getEmail(), 
                 passwordEncoder.encode(newUser.getPassword()));
         Set<Rol> roles = new HashSet<>();
         roles.add(rolService.getByRolName(RolName.ROLE_USER).get());
-        if (newUser.getRoles().contains("admin"))
-            roles.add(rolService.getByRolName(RolName.ROLE_ADMIN).get());
+        /*if (newUser.getRoles().contains("admin"))
+        roles.add(rolService.getByRolName(RolName.ROLE_ADMIN).get());*/
         user.setRoles(roles);
         userService.save(user);
         return new ResponseEntity(new Mensaje("User created"), HttpStatus.CREATED);

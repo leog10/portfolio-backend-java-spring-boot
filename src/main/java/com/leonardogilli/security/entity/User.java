@@ -36,8 +36,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotNull
-    private String name;
-    @NotNull
     @Column(unique = true)
     private String username;
     @NotNull
@@ -71,8 +69,7 @@ public class User {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Project> project = new ArrayList<>();
 
-    public User(String name, String username, String email, String password) {
-        this.name = name;
+    public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;

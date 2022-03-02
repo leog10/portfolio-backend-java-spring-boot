@@ -34,4 +34,8 @@ public class PersonaService {
     public boolean existsById(int id) {
         return personaRepository.existsById(id);
     }
+    
+    public boolean existsByUserId(int userId) {
+        return personaRepository.existsByUserId(userId);
+    }
 }
