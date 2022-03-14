@@ -11,8 +11,7 @@ public class PersonaDto {
     private String lastName;
     private String position;
     private String location;
-    private String aboutMe;
-    @JsonFormat(pattern="dd-MM-yyyy")
+    private String aboutMe;    
     private LocalDate birthday;
     private String backImg;
     private String profileImg;

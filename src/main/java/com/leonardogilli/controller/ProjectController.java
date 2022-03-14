@@ -64,7 +64,7 @@ public class ProjectController {
         
         Project project = new Project(
                 projectDto.getName(), 
-                projectDto.getImg(), 
+                projectDto.getProjectImg(), 
                 projectDto.getDescription(), 
                 projectDto.getStartTime(), 
                 projectDto.getEndTime());
@@ -89,14 +89,31 @@ public class ProjectController {
             return new ResponseEntity(new Mensaje("description can not be empty"), HttpStatus.BAD_REQUEST);
         
         Project project = projectService.get(id).get();
-        project.setName(projectDto.getName());
-        project.setImg(projectDto.getImg());
+        project.setName(projectDto.getName());        
         project.setDescription(projectDto.getDescription());
         project.setStartTime(projectDto.getStartTime());
         project.setEndTime(projectDto.getEndTime());
         
         projectService.save(project);
         return new ResponseEntity(new Mensaje("Project updated"), HttpStatus.OK);
+    }
+    
+    @PutMapping("/update/image/{id}")
+    public ResponseEntity<?> updateImage(@PathVariable("id") int id, @RequestBody ProjectDto projectDto, Principal principal) {
+        if (!projectService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
+        if (!projectService.existsById(id))
+            return new ResponseEntity(new Mensaje("Project not found"), HttpStatus.NOT_FOUND);        
+        if (projectDto.getProjectImg() == null) {
+            return new ResponseEntity(new Mensaje("No update. Send string"), HttpStatus.NOT_FOUND);
+        }
+        
+        Project project = projectService.get(id).get();
+        project.setProjectImg(projectDto.getProjectImg());
+        
+        projectService.save(project);
+        return new ResponseEntity(new Mensaje("Project image updated"), HttpStatus.OK);
     }
     
     @DeleteMapping("/delete/{id}")

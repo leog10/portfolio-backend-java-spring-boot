@@ -20,7 +20,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private String img;
+    private String projectImg;
     private String description;
     private String startTime;
     private String endTime;
@@ -30,9 +30,9 @@ public class Project {
     @JsonIgnore
     private User user;
 
-    public Project(String nombre, String img, String description, String startTime, String endTime) {
+    public Project(String nombre, String projectImg, String description, String startTime, String endTime) {
         this.name = nombre;
-        this.img = img;
+        this.projectImg = projectImg;
         this.description = description;
         this.startTime = startTime;
         this.endTime = endTime;

@@ -45,10 +45,8 @@ public class PersonaController {
         
         if (personaService.existsByUserId(user.getId()))
             return new ResponseEntity(new Mensaje("You have already created your profile"), HttpStatus.FORBIDDEN);
-        if (StringUtils.isBlank(personaDto.getFirstName()) || 
-                StringUtils.isBlank(personaDto.getLastName()) || 
-                StringUtils.isBlank(personaDto.getAboutMe()))
-            return new ResponseEntity(new Mensaje("Fields (firstName, lastName, about) should not be empty"), HttpStatus.BAD_REQUEST);
+        if (StringUtils.isBlank(personaDto.getFirstName()) || StringUtils.isBlank(personaDto.getLastName()))
+            return new ResponseEntity(new Mensaje("Fields (firstName, lastName) should not be empty"), HttpStatus.BAD_REQUEST);
         
         Persona persona = new Persona(
                 personaDto.getFirstName(),
@@ -88,15 +86,13 @@ public class PersonaController {
     
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody PersonaDto personaDto, Principal principal) {
+        if (!personaService.existsById(id))
+            return new ResponseEntity(new Mensaje("Persona not found"), HttpStatus.NOT_FOUND);
         if (!personaService.get(id).get().getUser().getUsername()
                 .equals(principal.getName()))
-            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
-        if (!personaService.existsById(id))
-            return new ResponseEntity(new Mensaje("Not found"), HttpStatus.NOT_FOUND);
-        if (StringUtils.isBlank(personaDto.getFirstName()) || 
-                StringUtils.isBlank(personaDto.getLastName()) || 
-                StringUtils.isBlank(personaDto.getAboutMe()))
-            return new ResponseEntity(new Mensaje("Fields (firstName, lastName, about) should not be empty"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);        
+        if (StringUtils.isBlank(personaDto.getFirstName()) || StringUtils.isBlank(personaDto.getLastName()))
+            return new ResponseEntity(new Mensaje("Fields (firstName, lastName) should not be empty"), HttpStatus.BAD_REQUEST);
         
         Persona persona = personaService.get(id).get();
         persona.setFirstName(personaDto.getFirstName());
@@ -112,6 +108,29 @@ public class PersonaController {
         return new ResponseEntity(new Mensaje("Persona updated"), HttpStatus.OK);
     }
     
+    @PutMapping("/update/image/{id}")
+    public ResponseEntity<?> updateBackgroundImage(@PathVariable("id") int id, @RequestBody PersonaDto personaDto, Principal principal) {
+        if (!personaService.get(id).get().getUser().getUsername()
+                .equals(principal.getName()))
+            return new ResponseEntity(new Mensaje("Not allowed to do that"), HttpStatus.FORBIDDEN);
+        if (!personaService.existsById(id))
+            return new ResponseEntity(new Mensaje("Not found"), HttpStatus.NOT_FOUND);
+        if (personaDto.getProfileImg() == null && personaDto.getBackImg() == null) {
+            return new ResponseEntity(new Mensaje("No update. Send string"), HttpStatus.NOT_FOUND);
+        }
+        if (personaDto.getBackImg() == null) {
+            Persona persona = personaService.get(id).get();
+            persona.setProfileImg(personaDto.getProfileImg());
+            personaService.save(persona);
+        }
+        if (personaDto.getProfileImg() == null) {
+            Persona persona = personaService.get(id).get();
+            persona.setBackImg(personaDto.getBackImg());
+            personaService.save(persona);
+        }        
+        return new ResponseEntity(new Mensaje("Image updated"), HttpStatus.OK);
+    }
+    
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal) {
         if (!personaService.get(id).get().getUser().getUsername()
@@ -121,5 +140,15 @@ public class PersonaController {
             return new ResponseEntity(new Mensaje("Persona not found"), HttpStatus.NOT_FOUND);
         personaService.delete(id);
         return new ResponseEntity(new Mensaje("Persona deleted"), HttpStatus.OK);
+    }
+    
+    @GetMapping("/exists/{username}")
+    public ResponseEntity<?> existByUsername(@PathVariable("username") String username) {
+        if (!userService.existsByUsername(username))
+            return new ResponseEntity(false, HttpStatus.OK);
+        User user = userService.getByUsername(username).get();
+        if (user.getPersona() == null)
+            return new ResponseEntity(false, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }

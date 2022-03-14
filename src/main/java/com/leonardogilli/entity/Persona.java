@@ -28,7 +28,6 @@ public class Persona {
     private String position;
     private String location;
     private String aboutMe;
-    @JsonFormat(pattern="dd-MM-yyyy")
     private LocalDate birthday;
     private String backImg;
     private String profileImg;

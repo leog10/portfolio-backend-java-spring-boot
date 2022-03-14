@@ -8,7 +8,7 @@ import lombok.Setter;
 public class ProjectDto {
     @NotBlank
     private String name;
-    private String img;
+    private String projectImg;
     private String description;
     private String startTime;
     private String endTime;
