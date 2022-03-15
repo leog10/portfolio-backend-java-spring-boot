@@ -84,7 +84,7 @@ public class AuthController {
     public ResponseEntity<JwtDto> login(@Valid @RequestBody LoginUser loginUser, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             return new ResponseEntity(new Mensaje("fields with errors"), HttpStatus.BAD_REQUEST);
-        if (!userService.existsByUsername(loginUser.getUsername()))
+        if (!userService.existsByUsernameOrEmail(loginUser.getUsername()))
             return new ResponseEntity(new Mensaje("fields with errors"), HttpStatus.BAD_REQUEST);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
