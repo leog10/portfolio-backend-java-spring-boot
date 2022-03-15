@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">    
+    <head>        
+        <meta charset="UTF-8">        
+        <title>Email</title>
+    </head>
+    <body>
+        <h2>Recuperar contraseña</h2>
+        <h3><span>Hola </span><span th:text="${username}"></span></h3>
+        <h4>Haz click en el boton recuperar contraseña para reestablecer tu cuenta</h4>
+        <a th:href="@{${url}}"><button>Recuperar contraseña</button></a>
+    </body>
+</html>

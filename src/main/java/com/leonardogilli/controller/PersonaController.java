@@ -7,6 +7,7 @@ import com.leonardogilli.security.entity.User;
 import com.leonardogilli.security.service.UserService;
 import com.leonardogilli.service.PersonaService;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
@@ -150,5 +151,16 @@ public class PersonaController {
         if (user.getPersona() == null)
             return new ResponseEntity(false, HttpStatus.OK);
         return new ResponseEntity(true, HttpStatus.OK);
+    }
+    
+    @GetMapping("/details/username/{usernameOrEmail}")
+    public ResponseEntity<?> getUsernameByEmail(@PathVariable("usernameOrEmail") String usernameOrEmail) {
+        if (!userService.existsByUsername(userService.getByUsernameOrEmail(usernameOrEmail).get().getUsername()))
+            return new ResponseEntity(new Mensaje("User not found"), HttpStatus.NOT_FOUND);
+        User user = userService.getByUsername(userService.getByUsernameOrEmail(usernameOrEmail).get().getUsername()).get();        
+        String username = userService.getByUsernameOrEmail(usernameOrEmail).get().getUsername();
+        ArrayList usernameArray = new ArrayList<>();
+        usernameArray.add(username);
+        return new ResponseEntity(usernameArray, HttpStatus.OK);
     }
 }

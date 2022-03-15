@@ -23,9 +23,21 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
     
+    public Optional<User> getByTokenPassword(String tokenPassword) {
+        return userRepository.findByTokenPassword(tokenPassword);
+    }
+    
+    public Optional<User> getByUsernameOrEmail(String usernameOrEmail) {
+        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+    }
+    
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
+    
+    public boolean existsByUsernameOrEmail(String usernameOrEmail) {
+        return userRepository.existsByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+    }    
     
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
