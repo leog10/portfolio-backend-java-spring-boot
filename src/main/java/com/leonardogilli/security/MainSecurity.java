@@ -65,7 +65,9 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                         "/api/project/details/**",                        
                         "/api/skill/details/**",
                         "/api/persona/exists/**",
-                        "/email-password/**").permitAll()
+                        "/email-password/**",
+                        "/api/persona/list",
+                        "/api/persona/username/persona-id/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
