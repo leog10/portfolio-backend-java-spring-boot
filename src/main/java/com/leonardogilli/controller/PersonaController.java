@@ -66,12 +66,14 @@ public class PersonaController {
         return new ResponseEntity(new Mensaje("Persona created"), HttpStatus.CREATED);
     }
     
-    @GetMapping("/details/id/{id}")
-    public ResponseEntity<Persona> getById(@PathVariable("id") int id) {
+    @GetMapping("/username/persona-id/{id}")
+    public ResponseEntity<?> getUsernameById(@PathVariable("id") int id) {
         if (!personaService.existsById(id))
-            return new ResponseEntity(new Mensaje("Not found"), HttpStatus.NOT_FOUND);
-        Persona persona = personaService.get(id).get();        
-        return new ResponseEntity(persona, HttpStatus.OK);
+            return new ResponseEntity(new Mensaje("Not found"), HttpStatus.NOT_FOUND);        
+        String username = personaService.get(id).get().getUser().getUsername();
+        ArrayList usernameArray = new ArrayList<>();
+        usernameArray.add(username);
+        return new ResponseEntity(usernameArray, HttpStatus.OK);
     }
     
     @GetMapping("/details/{username}")
