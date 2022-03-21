@@ -68,7 +68,7 @@ public class EmailController {
             return new ResponseEntity(new Mensaje("Passwords doesn't match"), HttpStatus.BAD_REQUEST);
         Optional<User> userOpt = userService.getByTokenPassword(dto.getTokenPassword());
         if (!userOpt.isPresent())
-            return new ResponseEntity(new Mensaje("El usuario o email ingresado no existe"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("El enlace a caducado o ya has cambiado tu contraseña. Si no la recuerdas prueba volver a recuperar tu contraseña"), HttpStatus.NOT_FOUND);
         User user = userOpt.get();
         String newPassword = passwordEncoder.encode(dto.getPassword());
         user.setPassword(newPassword);
