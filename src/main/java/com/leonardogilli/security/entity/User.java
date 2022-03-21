@@ -45,6 +45,7 @@ public class User {
     private String tokenPassword;
     @NotNull
     @ManyToMany(fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinTable(name = "user_rol",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "rol_id"))
